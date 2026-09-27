@@ -1,8 +1,8 @@
 #![no_std]
 use common::{extend_instance_ttl, QuestInfo};
 use soroban_sdk::{
-    contract, contractclient, contracterror, contractimpl, contracttype, symbol_short, Address, Env,
-    String,
+    contract, contractclient, contracterror, contractimpl, contracttype, symbol_short, Address,
+    Env, String, Vec,
 };
 
 /// Quest contract interface used to fetch quest ownership and metadata so the
@@ -18,6 +18,12 @@ pub trait QuestContractTrait {
 pub trait MilestoneContractTrait {
     fn get_milestone_count(env: Env, quest_id: u32) -> u32;
     fn is_completed(env: Env, quest_id: u32, milestone_id: u32, enrollee: Address) -> bool;
+    fn get_completion_batch(
+        env: Env,
+        quest_id: u32,
+        enrollee: Address,
+        milestone_ids: Vec<u32>,
+    ) -> Vec<bool>;
 }
 
 /// Certificate contract interface used to mint or look up the completion
@@ -131,19 +137,25 @@ impl CompletionContract {
             return Err(Error::NotOwner);
         }
 
-        // 2. Verify every milestone is completed by the recipient.
-        let count = MilestoneClient::new(&env, &config.milestone).get_milestone_count(&quest_id);
+        // 2. Verify every milestone is completed by the recipient (single batch call).
+        let milestone_client = MilestoneClient::new(&env, &config.milestone);
+        let count = milestone_client.get_milestone_count(&quest_id);
         if count == 0 {
             return Err(Error::MilestonesIncomplete);
         }
-        let mut milestone_id: u32 = 0;
-        while milestone_id < count {
-            let done = MilestoneClient::new(&env, &config.milestone)
-                .is_completed(&quest_id, &milestone_id, &recipient);
-            if !done {
+        let mut milestone_ids = Vec::new(&env);
+        let mut i: u32 = 0;
+        while i < count {
+            milestone_ids.push_back(i);
+            i += 1;
+        }
+        let results = milestone_client.get_completion_batch(&quest_id, &recipient, &milestone_ids);
+        let mut j: u32 = 0;
+        while j < results.len() {
+            if !results.get(j).unwrap_or(false) {
                 return Err(Error::MilestonesIncomplete);
             }
-            milestone_id += 1;
+            j += 1;
         }
 
         // Guard against double completion.

@@ -40,11 +40,7 @@ fn setup_contracts() -> (
     (env, milestone_client, quest_client, admin)
 }
 
-fn create_quest(
-    env: &Env,
-    quest_client: &QuestContractClient,
-    owner: &Address,
-) -> u32 {
+fn create_quest(env: &Env, quest_client: &QuestContractClient, owner: &Address) -> u32 {
     quest_client.create_quest(
         owner,
         &String::from_str(env, "Quest"),
@@ -308,12 +304,8 @@ fn approval_after_distribution_mode_change_uses_snapshot() {
     milestone_client.submit_for_review(&enrollee, &qid, &mid);
 
     // Switching reward types after milestones exist is frozen.
-    let switch = milestone_client.try_set_distribution_mode(
-        &owner,
-        &qid,
-        &DistributionMode::Custom,
-        &0,
-    );
+    let switch =
+        milestone_client.try_set_distribution_mode(&owner, &qid, &DistributionMode::Custom, &0);
     assert_eq!(
         switch,
         Err(Ok(MilestoneError::InvalidInput)),

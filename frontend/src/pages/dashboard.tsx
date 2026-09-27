@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react"
+import React, { useState, useDeferredValue, useEffect, useCallback, Suspense } from "react"
 import {
   Plus,
   Users,
@@ -81,6 +81,9 @@ export function Dashboard(
   const [statusFilter, setStatusFilter] = useState<QuestDiscoveryStatus>("all")
   const [rewardMin, setRewardMin] = useState<string>("")
   const [rewardMax, setRewardMax] = useState<string>("")
+  const deferredSearch = useDeferredValue(search)
+  const deferredRewardMin = useDeferredValue(rewardMin)
+  const deferredRewardMax = useDeferredValue(rewardMax)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagFilterMode, setTagFilterMode] = useState<"AND" | "OR">("OR")
   const [tagInput, setTagInput] = useState("")
@@ -332,18 +335,18 @@ export function Dashboard(
       ? creatorFilteredQuests
       : creatorFilteredQuests.filter(q => q.tokenAddr === rewardTokenFilter)
 
-  // Reward range filter
-  const rewardMinNum = rewardMin !== "" ? Number(rewardMin) : 0
-  const rewardMaxNum = rewardMax !== "" ? Number(rewardMax) : Infinity
+  // Reward range filter (uses deferred values to avoid re-rendering on every keystroke)
+  const rewardMinNum = deferredRewardMin !== "" ? Number(deferredRewardMin) : 0
+  const rewardMaxNum = deferredRewardMax !== "" ? Number(deferredRewardMax) : Infinity
   const rewardFilteredQuests = tokenFilteredQuests.filter(q => {
     const stats = questStats[q.id]
     const pool = stats?.poolBalance ?? 0
-    if (rewardMin !== "" && pool < rewardMinNum) return false
-    if (rewardMax !== "" && pool > rewardMaxNum) return false
+    if (deferredRewardMin !== "" && pool < rewardMinNum) return false
+    if (deferredRewardMax !== "" && pool > rewardMaxNum) return false
     return true
   })
 
-  const searchQuery = search.trim().toLowerCase()
+  const searchQuery = deferredSearch.trim().toLowerCase()
   const searchedQuests = searchQuery
     ? rewardFilteredQuests.filter(q => {
         const haystack = [q.name, q.description, q.category, ...(q.tags ?? [])]
@@ -1001,7 +1004,7 @@ export function Dashboard(
                   renderItem={renderQuestCard}
                 />
               ) : (
-                <div className="relative grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-1">
+                <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
                   {visibleQuests.map(renderQuestCard)}
                 </div>
               )}

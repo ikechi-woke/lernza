@@ -317,17 +317,14 @@ impl CertificateContract {
     /// back to 0 rather than failing the mint. The count is purely
     /// informational metadata for the certificate display page.
     fn quest_milestone_count(env: Env, quest_id: u32) -> u32 {
-        let milestone_contract: Option<Address> = env
-            .storage()
-            .instance()
-            .get(&DataKey::MilestoneContract);
+        let milestone_contract: Option<Address> =
+            env.storage().instance().get(&DataKey::MilestoneContract);
         match milestone_contract {
-            Some(contract) => env
-                .invoke_contract(
-                    &contract,
-                    &Symbol::new(&env, "get_milestone_count"),
-                    soroban_sdk::vec![&env, quest_id.into_val(&env)],
-                ),
+            Some(contract) => env.invoke_contract(
+                &contract,
+                &Symbol::new(&env, "get_milestone_count"),
+                soroban_sdk::vec![&env, quest_id.into_val(&env)],
+            ),
             None => 0,
         }
     }

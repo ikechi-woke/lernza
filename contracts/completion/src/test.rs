@@ -1,17 +1,17 @@
 #![cfg(test)]
 extern crate std;
 
+use crate::*;
 use common::Visibility;
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
-use crate::*;
 
-use quest::QuestContract as QuestContractType;
-use milestone::MilestoneContract as MilestoneContractType;
 use certificate::CertificateContract as CertificateContractType;
+use milestone::MilestoneContract as MilestoneContractType;
+use quest::QuestContract as QuestContractType;
 
-use quest::QuestContractClient as QuestContractClient;
-use milestone::MilestoneContractClient as MilestoneContractClient;
-use certificate::CertificateContractClient as CertificateContractClient;
+use certificate::CertificateContractClient;
+use milestone::MilestoneContractClient;
+use quest::QuestContractClient;
 
 struct TestSetup {
     env: Env,
@@ -37,7 +37,12 @@ fn setup() -> TestSetup {
 
     QuestContractClient::new(&env, &quest).initialize(&admin);
     MilestoneContractClient::new(&env, &milestone).initialize(&admin, &quest, &certificate);
-    CompletionContractClient::new(&env, &completion).initialize(&admin, &quest, &milestone, &certificate);
+    CompletionContractClient::new(&env, &completion).initialize(
+        &admin,
+        &quest,
+        &milestone,
+        &certificate,
+    );
 
     TestSetup {
         env,

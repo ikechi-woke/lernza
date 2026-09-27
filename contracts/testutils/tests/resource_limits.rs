@@ -4,9 +4,7 @@
 
 use common::{get_persistent_pair, Visibility};
 use milestone::MilestoneInput;
-use soroban_sdk::{
-    testutils::Address as _, testutils::Budget as _, Address, Env, String, Vec,
-};
+use soroban_sdk::{testutils::Address as _, testutils::Budget as _, Address, Env, String, Vec};
 use testutils::{create_quest, setup_milestone, setup_quest};
 
 #[test]

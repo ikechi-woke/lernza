@@ -225,6 +225,20 @@ export class MilestoneClient {
     return result ? Number(result) : 0
   }
 
+  async getCompletionBatch(
+    questId: number,
+    enrollee: string,
+    milestoneIds: number[]
+  ): Promise<boolean[]> {
+    const result = await this.invokeRead("get_completion_batch", [
+      nativeToScVal(questId, { type: "u32" }),
+      new Address(enrollee).toScVal(),
+      xdr.ScVal.scvVec(milestoneIds.map(id => nativeToScVal(id, { type: "u32" }))),
+    ])
+    if (!Array.isArray(result)) return milestoneIds.map(() => false)
+    return result.map(v => !!v)
+  }
+
   async createMilestone(
     owner: string,
     questId: number,

@@ -2044,6 +2044,28 @@ impl MilestoneContract {
             .unwrap_or(0)
     }
 
+    /// Batch check completion status for multiple milestones in a single call.
+    /// Returns a Vec<bool> where each entry corresponds to the milestone_id at
+    /// that index in `milestone_ids`.
+    pub fn get_completion_batch(
+        env: Env,
+        quest_id: u32,
+        enrollee: Address,
+        milestone_ids: Vec<u32>,
+    ) -> Vec<bool> {
+        let mut results = Vec::new(&env);
+        for i in 0..milestone_ids.len() {
+            let mid = milestone_ids.get(i).expect("index in bounds");
+            let done = env.storage().persistent().has(&DataKey::Completed(
+                quest_id,
+                mid,
+                enrollee.clone(),
+            ));
+            results.push_back(done);
+        }
+        results
+    }
+
     /// The pending submission snapshot for a learner on a milestone, if one is
     /// currently awaiting review. Returns `None` once the submission has been
     /// approved, rejected, or withdrawn. The dispute UI relies on this to tell

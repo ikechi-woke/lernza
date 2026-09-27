@@ -353,19 +353,20 @@ pub fn emit_enrollee_added(
     let timestamp = env.ledger().timestamp();
     env.events().publish(
         (soroban_sdk::Symbol::new(env, "enrollee_added"),),
-        (quest_id, enrollee.clone(), actor.clone(), timestamp, join_mode),
+        (
+            quest_id,
+            enrollee.clone(),
+            actor.clone(),
+            timestamp,
+            join_mode,
+        ),
     );
 }
 
 /// Helper: emit enrollee_removed event with standardized indexer metadata.
 /// Topics: (enrollee_removed,)
 /// Data: (quest_id, enrollee, actor, timestamp)
-pub fn emit_enrollee_removed(
-    env: &Env,
-    quest_id: u32,
-    enrollee: &Address,
-    actor: &Address,
-) {
+pub fn emit_enrollee_removed(env: &Env, quest_id: u32, enrollee: &Address, actor: &Address) {
     let timestamp = env.ledger().timestamp();
     env.events().publish(
         (soroban_sdk::Symbol::new(env, "enrollee_removed"),),
@@ -386,7 +387,13 @@ pub fn emit_milestone_created(
     let timestamp = env.ledger().timestamp();
     env.events().publish(
         (soroban_sdk::Symbol::new(env, "milestone_created"),),
-        (milestone_id, quest_id, reward_amount, actor.clone(), timestamp),
+        (
+            milestone_id,
+            quest_id,
+            reward_amount,
+            actor.clone(),
+            timestamp,
+        ),
     );
 }
 
@@ -404,7 +411,14 @@ pub fn emit_milestone_completed(
     let timestamp = env.ledger().timestamp();
     env.events().publish(
         (soroban_sdk::Symbol::new(env, "milestone_completed"),),
-        (quest_id, milestone_id, enrollee.clone(), reward, actor.clone(), timestamp),
+        (
+            quest_id,
+            milestone_id,
+            enrollee.clone(),
+            reward,
+            actor.clone(),
+            timestamp,
+        ),
     );
 }
 

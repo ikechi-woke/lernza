@@ -14,7 +14,8 @@ interface PersonalProgressProps {
 }
 
 export function PersonalProgress({ stats }: PersonalProgressProps) {
-  const { symbol } = useTokenSymbol()
+  const { symbol, metadata } = useTokenSymbol()
+  const decimals = metadata?.decimals ?? 7
   return (
     <div>
       <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold">
@@ -36,7 +37,7 @@ export function PersonalProgress({ stats }: PersonalProgressProps) {
         <div className="bg-accent border-border border p-4 shadow-md">
           <p className="text-foreground text-center text-xs font-bold uppercase">Earnings</p>
           <p className="mt-2 text-center text-xl font-semibold text-green-800">
-            {formatTokens(stats.totalEarned, 7, symbol)}
+            {formatTokens(stats.totalEarned, decimals, symbol)}
           </p>
         </div>
       </div>
